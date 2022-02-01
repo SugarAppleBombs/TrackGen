@@ -18,7 +18,7 @@ gdal.UseExceptions()
 WINDOWS_LINE_ENDING = '\r\n'    #variables for switching from CR LF to LF and vice versa
 UNIX_LINE_ENDING = '\n'
 
-DICT_LENGTH = 23 #number of different language inclusions in the dictionary
+DICT_LENGTH = 24 #number of different language inclusions in the dictionary
 SAMPLES = 3600  #number of longitudinal samples in AW3D30 DSM files
 HGTDIR = 'hgt'  #name of the folder containing AW3D30 DSM files
 DATA = 'data'   #name of the folder containing misc files
@@ -485,21 +485,32 @@ def generate(main_path, window):#main function
         
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
-        main.seek(main_contents.find("<cmt>", main.tell()) + 5)
-        
-        trk_cmt = ""
-        while True:
-            ch = main.read(1)
-            if ch == "<": break
-            trk_cmt = trk_cmt + ch
-                
-        trk_cmt = trk_cmt.split(' ')
+        cmt_pos = main_contents.find("<cmt>", main.tell())
+        if cmt_pos != -1:
+            main.seek(cmt_pos + 5)
+            trk_cmt = ""
+            while True:
+                ch = main.read(1)
+                if ch == "<": break
+                trk_cmt = trk_cmt + ch
+        else:
+            trk_cmt = "01-01-0001 00:00:00"
+        print(trk_name, trk_cmt, len(trk_cmt))
+        if len(trk_cmt) > 18:
+            trk_cmt = trk_cmt.split(' ')
+        else:
+            trk_cmt = ["01-01-0001", "00:00:00"]
+        print(trk_cmt)
         tdate = trk_cmt[0].split('-')
         if len(tdate)!=3:
-                tdate = trk_cmt[0].split('.')
+            tdate = trk_cmt[0].split('.')
         if len(tdate)!=3:
-                tdate = trk_cmt[0].split('/')
+            tdate = trk_cmt[0].split('/')
+        if len(tdate)!=3:
+            tdate = ["01", "01", "01"]
         ttime = trk_cmt[1].split(':')
+        if len(ttime)!=3:
+            ttime = ["00", "00", "00"]
         year = tdate[2]
         month = tdate[1]
         day = tdate[0]
@@ -547,9 +558,10 @@ def generate(main_path, window):#main function
         }
         
         if year.isdecimal():
-            year = int(year)
-            if year < 100:
+            if len(year) == 2:
+                year = int(year)
                 year = year + 2000
+            year = int(year)
         else:
             year = 0
             
@@ -622,15 +634,22 @@ def generate(main_path, window):#main function
         timein(times, output_track_path)
         
         speedin(spd, output_track_path)
-        
-        print(trk_name)
-        
-        if (i+1)%10 == 1:
-            tmp = window.lang_pack[10] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
-        if 2 <= (i+1)%10 <= 4:
+            
+        if 2 <= (i+1)%10 <= 4 and not(12 <= (i+1)%100 <= 14):
             tmp = str(i+1) + " " + window.lang_pack[12] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
-        if 5 <= (i+1)%10 <= 9 or (i+1)%10 == 0:
+            
+        if (12 <= (i+1)%100 <= 14) or 5 <= (i+1)%10 <= 9 or (i+1)%10 == 0:
             tmp = str(i+1) + " " + window.lang_pack[13] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
+            
+        if (i+1)%10 == 1 and ((i+1)%100 != 11):
+            tmp = str(i+1) + " " + window.lang_pack[23] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
+            
+        if ((i+1)%100 == 11):
+            tmp = str(i+1) + " " + window.lang_pack[13] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
+            
+        if i == 0:
+            tmp = "1 " +window.lang_pack[10] + ", " + str(round(total_length, 3)) + " " + window.lang_pack[11]
+            
         window.label3.setText(tmp)
         window.update()
         
@@ -644,7 +663,6 @@ def generate(main_path, window):#main function
                         point_dist = haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
                         min_dist = min([min_dist, point_dist])
                     if min_dist < 0.01:
-                        print(pnt_name[i])
                         pnt_done[i] = True
                         pointin(pnt_name[i], pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_point_path[i], times[j])
                         pnt_counter += 1
