@@ -288,7 +288,7 @@ def generate(main_path, window):#main function
         
         total_length += sum(mt.dist(result_coords)[1:])
         
-        elevations = mt.ele(result_coords, window.hgt)
+        elevations = mt.ele(result_coords, window.hgtdir)
         
         spd = mt.speeds(times, mt.dist(result_coords))
         
