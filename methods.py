@@ -12,8 +12,8 @@ SAMPLES = 3600  #number of longitudinal samples in AW3D30 DSM files
 DATA = 'data'   #name of the folder containing misc files
 
 def core(creator, q, name, path):#creating an empty GPX track file using a template
-    output = open(path,"w+b")
-    test = open(DATA + '/test.gpx', 'w+b')
+    #print(path)
+    output = open(path,"wb")
     tmplt = open(DATA + "/trk_tmplt.gpx","rb") #template of a GPX track file from Soviet Military Maps Android App(should be included with this script)
                                            #every filling function in this script is designed for a specific GPX template
     output.write(tmplt.read(126))
@@ -32,9 +32,7 @@ def core(creator, q, name, path):#creating an empty GPX track file using a templ
         tmplt.readline()
     output.write(tmplt.read(24))
     output.seek(0)
-    test.write(output.read())
     output.close()
-    test.close()
     tmplt.close()
 
 def coordin(coord, path):#filling in the coordinates into an empty GPX track file
@@ -96,6 +94,7 @@ def frommerc(input):#Mercator projection to lat/lon coordinates conversion
     return output
 
 def spline(length, array):#cubic spline for a track(should convert track to Mercator first)
+    #print('making a spline')
     x_points = []
     y_points = []
     out = []
@@ -106,15 +105,25 @@ def spline(length, array):#cubic spline for a track(should convert track to Merc
         deg = 2
     if array[0]>3:
         deg = 3
-    for i in range(array[0]):
-        x_points.append(array[2*i+1])
-        y_points.append(array[2*(i+1)])
+    x_points.append(array[1])
+    y_points.append(array[2])
+    d = 0
+    for i in range(1, array[0]):
+        if array[2*i+1]!=x_points[i-1-d] and array[2*(i+1)]!=y_points[i-1-d]:
+            x_points.append(array[2*i+1])
+            y_points.append(array[2*(i+1)])
+        else:
+            #print('a consecutive duplicate: ')
+            #print(array[2*i+1],'=', x_points[i-1-d])
+            #print(array[2*(i+1)], '=', y_points[i-1-d])
+            d += 1
     mytck,myu=interpolate.splprep([x_points,y_points], s = 0.0, k = deg)
     xnew,ynew= interpolate.splev(np.linspace(0,1,length),mytck)
     out[0] = len(xnew)
     for i in range(length):
         out.append(xnew[i] + xnew[i] * 0.0001/length * (random.random() - 0.5))     #resulting x/y coordinates are slightly randomized scaling with overall track length
         out.append(ynew[i] + ynew[i] * 0.0001/length * (random.random() - 0.5))
+    #print('spline is done')
     return out
 
 def haversine(lat1, lon1, lat2, lon2):#distance between two geographical points in kilometers(lat/lon coordinates)

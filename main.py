@@ -8,7 +8,6 @@ import threading
 import webbrowser
 import langs as ln
 import gen
-
 DATA = 'data'   #name of the folder containing misc files
 
 def change_cfg(param, value):
@@ -22,10 +21,31 @@ def change_cfg(param, value):
     cfg.write(beg + strng + end)
     cfg.close()
 
+def delete_cfg(param):
+    cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
+    tmp = cfg.read()
+    if tmp.find(param) != -1:
+        beg = tmp.find(param)
+        end = tmp.find('\n', beg) + 1
+        tmp = tmp[0:beg] + tmp[end:]
+        cfg.seek(0)
+        cfg.truncate()
+        cfg.write(tmp)
+    cfg.close()
+
+def add_cfg(param, value):
+    cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
+    tmp = cfg.read()
+    if tmp.find(param) == -1:
+        cfg.write(param + ' = ' + value + '\n')
+    cfg.close()
+    
 def read_cfg(param):
     cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
     tmp = cfg.read()
-    value = tmp[tmp.find(param)+len(param)+3:tmp.find('\n', tmp.find(param))]
+    start = tmp.find(param)+len(param)+3
+    end = tmp.find('\n', tmp.find(param))
+    value = tmp[start:end] if tmp.find(param)!= -1 else None
     cfg.close()
     return value
 
@@ -102,7 +122,6 @@ class Settings(QDialog):
         self.cb = QCheckBox(ln.langs.get(self.parent.lang, ln.eng).get('snap_chk', '***'), self)
         self.cb.move(1, 83)
         self.cb.resize(155, 20)
-        print(self.parent.point)
         self.cb.setChecked(self.parent.point)
         self.cb.stateChanged.connect(self.changeState)
     
@@ -114,7 +133,6 @@ class Settings(QDialog):
         self.pic_holder.setPixmap(self.parent.checkmark)
      
     def openFileNameDialog(self):
-        print(self.parent.point)
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         directory = QFileDialog.getExistingDirectory(self,ln.langs.get(self.parent.lang, ln.eng).get('f_dial', '***'), options=options)
@@ -176,16 +194,26 @@ class Main_window(QMainWindow):
         self.langs = list(ln.langs)
                 
         if not os.path.isfile(DATA + "/config.cfg"): 
-            self.cfg_file = open(DATA + '/config.cfg', 'w')
-            self.cfg_file.write('lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\n')
+            self.cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
+            self.tmp = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\n'
+            self.cfg_file.write(self.tmp)
             self.cfg_file.close()
         
         self.lang = read_cfg('lan')
+        if self.lang is None:
+            self.lang = 'eng'
+            add_cfg('lan', self.lang)
         
         self.hgtdir = read_cfg('hgtdir')    #name of the folder containing AW3D30 DSM files
-        
+        if self.hgtdir is None:
+            self.hgtdir = 'data'
+            add_cfg('hgtdir', self.lang)
+            
         self.creator = read_cfg('creator')
-        
+        if self.creator is None:
+            self.creator = 'Советские военные карты'
+            add_cfg('creator', self.creator)
+            
         self.do_points = read_cfg('points')
         if self.do_points == 'true':
             self.point = True
@@ -202,6 +230,7 @@ class Main_window(QMainWindow):
         self.play = QPixmap(DATA + '/play.png').scaled(20, 20, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.checkmark = QPixmap(DATA + '/checkmark.png').scaled(20, 20, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.warning = QPixmap(DATA + '/warning.png').scaled(20, 20, Qt.KeepAspectRatio, Qt.FastTransformation)
+        self.gear = QPixmap(DATA + '/gear.png').scaled(20, 20, Qt.KeepAspectRatio, Qt.FastTransformation)
         self.hourglass = QMovie(DATA + "/hourglass.gif")
         self.hourglass.start()
         
@@ -253,6 +282,11 @@ class Main_window(QMainWindow):
         self.set.move(260, 80)
         self.set.clicked.connect(self.open_settings)
         
+        self.set_icon = QLabel(self)
+        self.set_icon.resize(30, 30)
+        self.set_icon.move(240, 75)
+        self.set_icon.setPixmap(self.gear)
+        
         self.help = QtWidgets.QPushButton(self)
         self.help.setStyleSheet("border: 1px solid grey")
         self.help.resize(70, 20)
@@ -293,7 +327,6 @@ class Main_window(QMainWindow):
         webbrowser.open_new(os.path.abspath(self.help_path))
     
     def openFileNameDialog(self):
-        print(self.point)
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         fileName, _ = QFileDialog.getOpenFileName(self,ln.langs.get(self.lang, ln.eng).get('f_dial', '***'), "","All Files (*);;GPX Files (*.gpx)", options=options)
@@ -303,7 +336,7 @@ class Main_window(QMainWindow):
             self.label2.setText(ln.langs.get(self.lang, ln.eng).get('ready_stat', '***'))
             self.sign.setPixmap(self.play)
             self.b2.setEnabled(True)
-               
+           
     def generate(self):
         path = self.label1.text()
         form = path[len(path)-3] + path[len(path)-2] + path[len(path)-1]
@@ -321,6 +354,9 @@ class Main_window(QMainWindow):
                 self.label3.setText(ln.langs.get(self.lang, ln.eng).get('no_trks', '***'))
                 self.label4.setText(ln.langs.get(self.lang, ln.eng).get('no_pnts', '***'))
                 working_thread = threading.Thread(target=gen.generate, args=(path, self))
+                self.b1.setEnabled(False)
+                self.b2.setEnabled(False)
+                self.set.setEnabled(False)
                 working_thread.start()    #main calculating is called
                 file.close()
             else:

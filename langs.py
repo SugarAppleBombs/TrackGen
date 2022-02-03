@@ -26,6 +26,12 @@ eng = {
 'help_btn': 'Help',
 'dir_set': 'HGT Folder',
 'save': 'Save',
+'trk_proc': 'Processing a Track',
+'pnt_proc': 'Processing a Point',
+'too_long': 'Processing takes too much time, track might be too long',
+'wrong': 'Something went wrong during processing closing the programm is recommended',
+'save': 'Save',
+'wait': 'Please, Wait',
 'creator': 'Creator Name'
 }
 
@@ -57,6 +63,11 @@ rus = {
 'help_btn': 'Помощь',
 'dir_set': 'Папка HGT',
 'save': 'Сохранить',
+'trk_proc': 'Обрабатывается Трек',
+'pnt_proc': 'Обрабатывается Точка',
+'too_long': 'Обработка занимает много времени, вероятно трек слишком длинный',
+'wrong': 'Что-то пошло не так при обработке, рекомендуется закрыть программу',
+'wait': 'Пожалуйста, Подождите',
 'creator': 'Имя Создателя'
 }
 

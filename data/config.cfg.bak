@@ -1,4 +1,4 @@
 lan = eng
-hgtdir = S:/TrackGen/hgt
-points = true
+hgtdir = data
 creator = Советские военные карты
+points = false
