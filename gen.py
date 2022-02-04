@@ -70,9 +70,13 @@ def do_comment(trk_cmt):
         second = int(second)
     else:
         second = 0
+
+    speed = None
+    if len(trk_cmt) == 3:
+        if trk_cmt[2].isdecimal():
+            speed = int(trk_cmt[2])
     
-        
-    return [dt.datetime(year, month, day, hour, minute, second), trk_cmt]
+    return [dt.datetime(year, month, day, hour, minute, second), speed]
 
 def generate(main_path, window):#main function
     
@@ -112,7 +116,7 @@ def generate(main_path, window):#main function
             pnt_lon.append(waypoint.longitude)
             pnt_done.append(False)
             pnt_name[i] = pnt_name[i].translate({ord(c): None for c in '<>:"|?*'})
-            output_point_path.append(output_path + "/" + pnt_name + ".gpx")
+            output_point_path.append(output_path + "/" + pnt_name[i] + ".gpx")
            
     total_length = 0    #combined length of all found tracks and routes in km
     pnt_counter = 0     #well, duh
@@ -131,9 +135,8 @@ def generate(main_path, window):#main function
         start = comment[0]
         speed = 30
         
-        if len(comment[1]) == 3:
-            if comment[1].isdecimal():
-                speed = int(trk_cmt[2])
+        if comment[1] is not None:
+            speed = comment[1]
         
         coords = []
         for point in route.points:
@@ -233,9 +236,8 @@ def generate(main_path, window):#main function
         start = comment[0]
         speed = 30
         
-        if len(comment[1]) == 3:
-            if comment[1].isdecimal():
-                speed = int(trk_cmt[2])
+        if comment[1] is not None:
+            speed = comment[1]
                 
         coords = []
         for segment in track.segments:
