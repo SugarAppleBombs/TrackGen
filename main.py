@@ -9,19 +9,36 @@ import webbrowser
 import langs as ln
 import gen
 DATA = 'data'   #name of the folder containing misc files
-
+CONFIG = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\n'
 def change_cfg(param, value):
+    if not os.path.isfile(DATA + "/config.cfg"): 
+        cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
+        tmp = CONFIG
+        cfg_file.write(tmp)
+        cfg_file.close()
+    
     cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
     tmp = cfg.read()
-    beg = tmp[0:tmp.find(param)]
-    end = tmp[tmp.find('\n', len(beg)):]
-    strng = param + ' = ' + value
-    cfg.seek(0)
-    cfg.truncate()
-    cfg.write(beg + strng + end)
-    cfg.close()
+    pos = tmp.find(param)
+    if pos != -1:
+        beg = tmp[0:pos]
+        end = tmp[tmp.find('\n', len(beg)):]
+        strng = param + ' = ' + value
+        cfg.seek(0)
+        cfg.truncate()
+        cfg.write(beg + strng + end)
+        cfg.close()
+    else:
+        cfg.close()
+        add_cfg(param, value)
 
 def delete_cfg(param):
+    if not os.path.isfile(DATA + "/config.cfg"): 
+        cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
+        tmp = CONFIG
+        cfg_file.write(tmp)
+        cfg_file.close()
+    
     cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
     tmp = cfg.read()
     if tmp.find(param) != -1:
@@ -34,6 +51,12 @@ def delete_cfg(param):
     cfg.close()
 
 def add_cfg(param, value):
+    if not os.path.isfile(DATA + "/config.cfg"): 
+        cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
+        tmp = CONFIG
+        cfg_file.write(tmp)
+        cfg_file.close()
+    
     cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
     tmp = cfg.read()
     if tmp.find(param) == -1:
@@ -41,6 +64,12 @@ def add_cfg(param, value):
     cfg.close()
     
 def read_cfg(param):
+    if not os.path.isfile(DATA + "/config.cfg"): 
+        cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
+        tmp = CONFIG
+        cfg_file.write(tmp)
+        cfg_file.close()
+    
     cfg = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'r+')
     tmp = cfg.read()
     start = tmp.find(param)+len(param)+3
@@ -129,7 +158,8 @@ class Settings(QDialog):
         self.pic_holder.clear()
         
     def save_creator(self):
-        change_cfg('creator', self.textEdit.text())
+        self.parent.creator = self.textEdit.text()
+        change_cfg('creator', self.parent.creator)
         self.pic_holder.setPixmap(self.parent.checkmark)
      
     def openFileNameDialog(self):
@@ -186,7 +216,7 @@ class Main_window(QMainWindow):
         self.top = 10
         self.width = 400
         self.height = 111
-        self.settng = None
+        self.settngs = None
         self.initUI()
     
     def initUI(self):
@@ -195,7 +225,7 @@ class Main_window(QMainWindow):
                 
         if not os.path.isfile(DATA + "/config.cfg"): 
             self.cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
-            self.tmp = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\n'
+            self.tmp = CONFIG
             self.cfg_file.write(self.tmp)
             self.cfg_file.close()
         
@@ -318,9 +348,9 @@ class Main_window(QMainWindow):
         self.setWindowIcon(QIcon(DATA + '/knuckles.png'))
     
     def open_settings(self, checked):
-        settngs = Settings(parent = self)
-        settngs.exec_()
-        settngs.deleteLater()
+        if self.settngs is None:
+            self.settngs = Settings(parent = self)
+        self.settngs.show()
     
     def open_help(self):
         self.help_path = DATA + "/help.pdf"
@@ -343,10 +373,6 @@ class Main_window(QMainWindow):
         
         if os.path.isfile(path):
             if form == "gpx":
-                file = open(path, 'rb')
-                file.readline()
-                file.readline()
-                file.read(2)
                 self.sign.setMovie(self.hourglass)
                 self.label2.setText(ln.langs.get(self.lang, ln.eng).get('doing_stat', '***') + "...")
                 self.label2.repaint()
@@ -358,7 +384,6 @@ class Main_window(QMainWindow):
                 self.b2.setEnabled(False)
                 self.set.setEnabled(False)
                 working_thread.start()    #main calculating is called
-                file.close()
             else:
                 self.label2.setText(ln.langs.get(self.lang, ln.eng).get('format_wrn', '***'))
                 self.sign.setPixmap(self.warning)
@@ -369,10 +394,10 @@ class Main_window(QMainWindow):
             self.b2.setEnabled(False)
         
 if __name__ == '__main__':
-    app = QApplication(sys.argv)
-    ex = Main_window()
-    ex.show()
-    if ex.flag:
-        ex.movie.stop()
+    if not QApplication.instance():
+        app = QApplication(sys.argv)
+    else:
+        app = QApplication.instance()
+    main = Main_window()
+    main.show()
     sys.exit(app.exec_())
-    ex.hourglass.stop()
