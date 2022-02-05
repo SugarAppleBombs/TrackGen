@@ -136,7 +136,7 @@ def haversine(lat1, lon1, lat2, lon2):#distance between two geographical points 
 def dist(array):#roughly calculating track length in kilometers
     out = []
     out.append(array[0]-1)
-    for i in range(array[0] - 1):
+    for i in range(out[0]):
         d = haversine(array[2*i+1], array[2*(i+1)], array[2*i+3], array[2*(i+2)])
         out.append(d)
     return out
@@ -270,7 +270,7 @@ def timein(array, path):#filling in the date/time values into an resulting GPX t
         output.write(temp.read(6))
         output.write(str(array[i+1].date()).encode(encoding='utf-8', errors='strict'))
         output.write(t.encode(encoding='utf-8', errors='strict'))
-        output.write(str(array[i+1].time()).encode(encoding='utf-8', errors='strict'))
+        output.write(str(array[i+1].time())[:8].encode(encoding='utf-8', errors='strict'))
         output.write(z.encode(encoding='utf-8', errors='strict'))
         output.write(temp.read(8))
         for j in range(4):
@@ -280,15 +280,51 @@ def timein(array, path):#filling in the date/time values into an resulting GPX t
     os.remove(DATA + "/temp.gpx")
     output.close()
 
-def time(t1, dist, speed):#calculating the timestamp of each track point knowing timestamp of the first point and average speed
+def generate_spds(mean_spd, n):
+    result = []
+    result.append(n)
+    for i in range(n+1):
+        result.append(mean_spd)
+
+    first_y = []
+    first_x = []
+
+    first_y.append((random.random() - 0.5)*2*5)
+    first_x.append(1)
+    for i in range(int(random.random()*15) + 15):
+        dec = random.random()
+        if dec>0.3:
+            new = (random.random() - 0.5)*2*5
+            first_y.append(new)
+        else:
+            first_y.append(first_y[i-1])
+        first_x.append(i+2)
+    
+    mytck,myu=interpolate.splprep([first_x,first_y], s = 80.0, k = 1)
+    xnew,ynew= interpolate.splev(np.linspace(0,1,len(result)),mytck)
+    
+    for i in range(n+1):
+        result[i] += ynew[i]
+        if random.random()>0.05:
+            result[i] += (random.random()-0.5)*(random.random()-0.5)*6
+        if random.random()>0.95:
+            result[i] += (random.random()-0.5)*(random.random()-0.5)*12
+            
+    return result
+
+def time(t1, dist, speed, n):#calculating the timestamp of each track point knowing timestamp of the first point and average speed
     time = []
     current_time = t1
-    n = int(3600*dist/(2*speed))
-    time.append(n)
     
-    for i in range(n):
+    time.append(n)
+    time.append(current_time)
+    
+    speeds = generate_spds(speed, n)
+    for i in range(1, n):
+        delta = (dist[i]/speeds[i])*3600
+        #print(dist[i], ' ' , speeds[i], ' ' ,delta)
+        current_time = current_time + dt.timedelta(seconds=delta)
         time.append(current_time)
-        current_time = current_time + dt.timedelta(seconds=2)
     
     return time
 
@@ -301,6 +337,7 @@ def speeds(times, dists):#calculating "instant" speed between two points using "
         t = times[i+2]-times[i+1]
         t = t.total_seconds()/3600
         v = dists[i+1]/t
+        #print(dists[i+1], ' ', t*3600, ' ', v)
         spd.append(v)
     
     return spd

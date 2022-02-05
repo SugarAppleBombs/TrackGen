@@ -7,6 +7,7 @@ import langs as ln
 import time
 
 def do_comment(trk_cmt):
+    print(trk_cmt)
     if isinstance(trk_cmt, str):
         trk_cmt = trk_cmt.split(' ')
     else:
@@ -22,7 +23,10 @@ def do_comment(trk_cmt):
         tdate = str(dt.date.fromtimestamp(time.time()))
         tdate = [tdate[8:10], tdate[5:7], tdate[0:4]]
    
-    ttime = trk_cmt[1].split(':')
+    if len(trk_cmt) > 1:
+        ttime = trk_cmt[1].split(':')
+    else:
+        ttime = ' '
    
     if len(ttime)!=3:
         ttime = str(dt.datetime.fromtimestamp(time.time()))
@@ -131,13 +135,15 @@ def generate(main_path, window):#main function
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
+        print('comment is ', trk_cmt)
         comment = do_comment(trk_cmt)
+        print('comment read as ', comment)
         start = comment[0]
         speed = 30
         
         if comment[1] is not None:
             speed = comment[1]
-        
+        print('speed is set to ', speed)
         coords = []
         for point in route.points:
             #print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
@@ -148,9 +154,13 @@ def generate(main_path, window):#main function
         
         dst = mt.dist(coords)
         
-        times = mt.time(start, sum(dst[1:]), speed)
+        n = int(1800*sum(dst[1:])/speed)
         
-        result_coords = mt.frommerc(mt.spline(times[0], mt.merc(coords)))
+        result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+        
+        dst = mt.dist(result_coords)
+        
+        times = mt.time(start, dst, speed, n)
         
         total_length += sum(mt.dist(result_coords)[1:])
         
@@ -166,7 +176,7 @@ def generate(main_path, window):#main function
         #timein()
         #speedin()
         
-        mt.core(window.creator, times[0], trk_name, output_track_path)
+        mt.core(window.creator, n, trk_name, output_track_path)
         
         mt.coordin(result_coords, output_track_path)
         
@@ -232,13 +242,15 @@ def generate(main_path, window):#main function
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
+        print('comment is ', trk_cmt)
         comment = do_comment(trk_cmt)
+        print('comment read as ', comment)
         start = comment[0]
         speed = 30
         
         if comment[1] is not None:
             speed = comment[1]
-                
+        print('speed is set to ', speed)
         coords = []
         for segment in track.segments:
             for point in segment.points:
@@ -249,9 +261,13 @@ def generate(main_path, window):#main function
         
         dst = mt.dist(coords)
         
-        times = mt.time(start, sum(dst[1:]), speed)
+        n = int(1800*sum(dst[1:])/speed)
         
-        result_coords = mt.frommerc(mt.spline(times[0], mt.merc(coords)))
+        result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+        
+        dst = mt.dist(result_coords)
+        
+        times = mt.time(start, dst, speed, n)
         
         total_length += sum(mt.dist(result_coords)[1:])
         
@@ -267,7 +283,7 @@ def generate(main_path, window):#main function
         #timein()
         #speedin()
         
-        mt.core(window.creator, times[0], trk_name, output_track_path)
+        mt.core(window.creator, n, trk_name, output_track_path)
         
         mt.coordin(result_coords, output_track_path)
         
