@@ -124,8 +124,15 @@ class Settings(QDialog):
         self.textEdit.setText(read_cfg('creator'))
         self.textEdit.textChanged.connect(self.remove_checkmark)
         
-        self.save_cr = QtWidgets.QPushButton(self)   #file dialog button
-        self.save_cr.setStyleSheet("border: 1px solid grey")
+        self.save = QtWidgets.QPushButton(self)   #save button
+        #self.save_cr.setStyleSheet("border: 1px solid grey")
+        self.save.move(330, 75)
+        self.save.resize(0, 0)
+        self.save.setText('ээ')
+        self.save.clicked.connect(self.save_creator)
+        
+        self.save_cr = QtWidgets.QPushButton(self)   #save button
+        #self.save_cr.setStyleSheet("border: 1px solid grey")
         self.save_cr.move(330, 53)
         self.save_cr.resize(65, 22)
         self.save_cr.setText(ln.langs.get(self.parent.lang, ln.eng).get('save', '***'))
@@ -137,8 +144,8 @@ class Settings(QDialog):
         self.lan_txt.move(2, 0)
         
         self.b1 = QtWidgets.QPushButton(self)   #file dialog button
-        self.b1.setStyleSheet("border: 1px solid grey")
-        self.b1.move(330, 25)
+        #self.b1.setStyleSheet("border: 1px solid grey")
+        self.b1.move(330, 26)
         self.b1.resize(65, 22)
         self.b1.setText(ln.langs.get(self.parent.lang, ln.eng).get('choose_dir_btn', '***'))
         self.b1.clicked.connect(self.openFileNameDialog)
@@ -251,7 +258,7 @@ class Main_window(QMainWindow):
             self.point = False
         
         self.b1 = QtWidgets.QPushButton(self)   #file dialog button
-        self.b1.setStyleSheet("border: 1px solid grey")
+        #self.b1.setStyleSheet("border: 1px solid grey")
         self.b1.resize(90, 22)
         self.b1.setText(ln.langs.get(self.lang, ln.eng).get('choose_file_btn', '***'))
         self.b1.clicked.connect(self.openFileNameDialog)
@@ -265,7 +272,7 @@ class Main_window(QMainWindow):
         self.hourglass.start()
         
         self.b2 = QtWidgets.QPushButton(self)   #starting button that calls generate() function
-        self.b2.setStyleSheet("border: 1px solid grey")
+        #self.b2.setStyleSheet("border: 1px solid grey")
         self.b2.resize(90, 20)
         self.b2.setText(ln.langs.get('lang_name', ln.eng).get('gen_btn', '***'))
         self.b2.move(0, 80)
@@ -306,7 +313,7 @@ class Main_window(QMainWindow):
         self.label4.move(0, 34)
         
         self.set = QtWidgets.QPushButton(self)
-        self.set.setStyleSheet("border: 1px solid grey")
+       # self.set.setStyleSheet("border: 1px solid grey")
         self.set.resize(70, 20)
         self.set.setText(ln.langs.get(self.lang, ln.eng).get('set_btn', '***'))
         self.set.move(260, 80)
@@ -318,7 +325,7 @@ class Main_window(QMainWindow):
         self.set_icon.setPixmap(self.gear)
         
         self.help = QtWidgets.QPushButton(self)
-        self.help.setStyleSheet("border: 1px solid grey")
+        #self.help.setStyleSheet("border: 1px solid grey")
         self.help.resize(70, 20)
         self.help.setText(ln.langs.get(self.lang, ln.eng).get('help_btn', '***'))
         self.help.move(330, 80)

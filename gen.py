@@ -7,7 +7,7 @@ import langs as ln
 import time
 
 def do_comment(trk_cmt):
-    print(trk_cmt)
+    #print(trk_cmt)
     if isinstance(trk_cmt, str):
         trk_cmt = trk_cmt.split(' ')
     else:
@@ -135,15 +135,15 @@ def generate(main_path, window):#main function
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
-        print('comment is ', trk_cmt)
+        #print('comment is ', trk_cmt)
         comment = do_comment(trk_cmt)
-        print('comment read as ', comment)
+        #print('comment read as ', comment)
         start = comment[0]
         speed = 30
         
         if comment[1] is not None:
             speed = comment[1]
-        print('speed is set to ', speed)
+        #print('speed is set to ', speed)
         coords = []
         for point in route.points:
             #print('Point at ({0},{1}) -> {2}'.format(point.latitude, point.longitude, point.elevation))
@@ -242,15 +242,15 @@ def generate(main_path, window):#main function
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
-        print('comment is ', trk_cmt)
+        #print('comment is ', trk_cmt)
         comment = do_comment(trk_cmt)
-        print('comment read as ', comment)
+        #print('comment read as ', comment)
         start = comment[0]
         speed = 30
         
         if comment[1] is not None:
             speed = comment[1]
-        print('speed is set to ', speed)
+        #print('speed is set to ', speed)
         coords = []
         for segment in track.segments:
             for point in segment.points:
