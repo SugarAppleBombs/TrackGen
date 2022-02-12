@@ -172,7 +172,7 @@ class Settings(QDialog):
     def openFileNameDialog(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
-        directory = QFileDialog.getExistingDirectory(self,ln.langs.get(self.parent.lang, ln.eng).get('f_dial', '***'), options=options)
+        directory = QFileDialog.getExistingDirectory(self,ln.langs.get(self.parent.lang, ln.eng).get('d_dial', '***'), options=options)
         if directory:
             self.parent.hgtdir = directory
             self.label1.setText(ln.langs.get(self.parent.lang, ln.eng).get('dir_set', '***') + ': ' + self.parent.hgtdir)
@@ -274,7 +274,7 @@ class Main_window(QMainWindow):
         self.b2 = QtWidgets.QPushButton(self)   #starting button that calls generate() function
         #self.b2.setStyleSheet("border: 1px solid grey")
         self.b2.resize(90, 20)
-        self.b2.setText(ln.langs.get('lang_name', ln.eng).get('gen_btn', '***'))
+        self.b2.setText(ln.langs.get(self.lang, ln.eng).get('gen_btn', '***'))
         self.b2.move(0, 80)
         self.b2.clicked.connect(self.generate)
         self.b2.setEnabled(False)
