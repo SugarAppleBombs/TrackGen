@@ -114,10 +114,28 @@ def generate(main_path, window):#main function
         for i, waypoint in enumerate(gpx.waypoints):
             #print('waypoint {0} -> ({1},{2})'.format(waypoint.name, waypoint.latitude, waypoint.longitude))
             
-            pnt_name.append(waypoint.name)
-            pnt_cmt.append(waypoint.comment)
-            pnt_lat.append(waypoint.latitude)
-            pnt_lon.append(waypoint.longitude)
+            if waypoint.name is not None:
+                pnt_name.append(waypoint.name)
+            else:
+                pnt_name.append('Point ' + str(i))
+            
+            if waypoint.comment is not None:
+                pnt_cmt.append(waypoint.comment)
+            elif waypoint.name is not None:
+                pnt_cmt.append(waypoint.name)
+            else:
+                pnt_cmt.append(str(waypoint.latitude) + ', ' + str(waypoint.longitude))
+            
+            if waypoint.latitude is not None:
+                pnt_lat.append(waypoint.latitude)
+            else:
+                pnt_lat.append(0.0)
+            
+            if waypoint.longitude is not None:
+                pnt_lon.append(waypoint.longitude)
+            else:
+                pnt_lon.append(0.0)
+                
             pnt_done.append(False)
             pnt_name[i] = pnt_name[i].translate({ord(c): None for c in '<>:"|?*'})
             output_point_path.append(output_path + "/" + pnt_name[i] + ".gpx")
