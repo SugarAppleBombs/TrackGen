@@ -86,8 +86,8 @@ class Settings(QDialog):
         self.title = 'Settings'
         self.left = 10
         self.top = 10
-        self.width = 400
-        self.height = 111
+        self.width = 420
+        self.height = 145
         self.initUI(parent)
     
     def initUI(self, parent):
@@ -105,22 +105,22 @@ class Settings(QDialog):
             self.lan_box.addItem(language)
             if parent.lang == parent.langs[i]:
                 self.lan_box.setCurrentIndex(i)
-        self.lan_box.move(330, 0)
-        self.lan_box.resize(65, 20)
+        self.lan_box.move(341, 0)
+        self.lan_box.resize(78, 30)
         self.lan_box.activated[str].connect(self.onChanged)
         
         self.pic_holder = QLabel(self)
         self.pic_holder.resize(20, 20)
-        self.pic_holder.move(300, 55)
+        self.pic_holder.move(310, 85)
         
         self.creator = QLabel(self)
-        self.creator.resize(90, 20)
+        self.creator.resize(90, 30)
         self.creator.setText(ln.langs.get(self.parent.lang, ln.eng).get('creator', '***'))
-        self.creator.move(2, 55)
+        self.creator.move(2, 80)
         
         self.textEdit = QLineEdit(self)
-        self.textEdit.move(90, 55)
-        self.textEdit.resize(200, 20)
+        self.textEdit.move(100, 81)
+        self.textEdit.resize(200, 28)
         self.textEdit.setText(read_cfg('creator'))
         self.textEdit.textChanged.connect(self.remove_checkmark)
         
@@ -129,34 +129,33 @@ class Settings(QDialog):
         self.save.move(330, 75)
         self.save.resize(0, 0)
         self.save.setText('ээ')
-        self.save.clicked.connect(self.save_creator)
         
         self.save_cr = QtWidgets.QPushButton(self)   #save button
         #self.save_cr.setStyleSheet("border: 1px solid grey")
-        self.save_cr.move(330, 53)
-        self.save_cr.resize(65, 22)
+        self.save_cr.move(340, 80)
+        self.save_cr.resize(80, 30)
         self.save_cr.setText(ln.langs.get(self.parent.lang, ln.eng).get('save', '***'))
         self.save_cr.clicked.connect(self.save_creator)
         
         self.lan_txt = QLabel(self)
         self.lan_txt.resize(100, 20)
         self.lan_txt.setText(ln.langs.get(self.parent.lang, ln.eng).get('lang', '***'))
-        self.lan_txt.move(2, 0)
+        self.lan_txt.move(2, 5)
         
         self.b1 = QtWidgets.QPushButton(self)   #file dialog button
         #self.b1.setStyleSheet("border: 1px solid grey")
-        self.b1.move(330, 26)
-        self.b1.resize(65, 22)
+        self.b1.move(340, 40)
+        self.b1.resize(80, 30)
         self.b1.setText(ln.langs.get(self.parent.lang, ln.eng).get('choose_dir_btn', '***'))
         self.b1.clicked.connect(self.openFileNameDialog)
     
         self.label1 = QLabel(self)  #this label shows directory path once it's chosen
-        self.label1.resize(330, 22)
+        self.label1.resize(330, 30)
         self.label1.setText(ln.langs.get(self.parent.lang, ln.eng).get('dir_set', '***') + ': ' + self.parent.hgtdir)
-        self.label1.move(2, 27)
+        self.label1.move(2, 40)
         
         self.cb = QCheckBox(ln.langs.get(self.parent.lang, ln.eng).get('snap_chk', '***'), self)
-        self.cb.move(1, 83)
+        self.cb.move(1, 120)
         self.cb.resize(155, 20)
         self.cb.setChecked(self.parent.point)
         self.cb.stateChanged.connect(self.changeState)
@@ -221,8 +220,8 @@ class Main_window(QMainWindow):
         self.title = 'TrackGen'
         self.left = 10
         self.top = 10
-        self.width = 400
-        self.height = 111
+        self.width = 600
+        self.height = 180
         self.settngs = None
         self.initUI()
     
@@ -259,7 +258,7 @@ class Main_window(QMainWindow):
         
         self.b1 = QtWidgets.QPushButton(self)   #file dialog button
         #self.b1.setStyleSheet("border: 1px solid grey")
-        self.b1.resize(90, 22)
+        self.b1.resize(100, 30)
         self.b1.setText(ln.langs.get(self.lang, ln.eng).get('choose_file_btn', '***'))
         self.b1.clicked.connect(self.openFileNameDialog)
         
@@ -273,68 +272,68 @@ class Main_window(QMainWindow):
         
         self.b2 = QtWidgets.QPushButton(self)   #starting button that calls generate() function
         #self.b2.setStyleSheet("border: 1px solid grey")
-        self.b2.resize(90, 20)
+        self.b2.resize(100, 30)
         self.b2.setText(ln.langs.get(self.lang, ln.eng).get('gen_btn', '***'))
-        self.b2.move(0, 80)
+        self.b2.move(0, 130)
         self.b2.clicked.connect(self.generate)
         self.b2.setEnabled(False)
         
         self.label1 = QLabel(self)  #this label shows file path once it's chosen
-        self.label1.resize(400, 20)
+        self.label1.resize(500, 20)
         self.label1.setText("...")
-        self.label1.move(90, 0)
+        self.label1.move(100, 5)
         
         self.endlabel = QLabel(self)    #label just for any text
         self.endlabel.resize(400, 20)
-        self.endlabel.setText("TrackGen v1.0 - by Me, I wrote it all by myself (JK)||||sugarapplebombs@gmail.com")
-        self.endlabel.move(0, 94)
+        self.endlabel.setText("TrackGen v1.2 - by Me, I wrote it all by myself (JK)||||sugarapplebombs@gmail.com")
+        self.endlabel.move(1, 160)
         
         self.sign = QLabel(self)    #label for holding info and fun icons
         self.sign.resize(30, 30)
-        self.sign.move(90, 75)
+        self.sign.move(100, 130)
         self.sign.setPixmap(self.play)
         
         self.label2 = QLabel(self)  #status label
-        self.label2.resize(400, 20)
+        self.label2.resize(600, 20)
         self.label2.setAlignment(Qt.AlignCenter)
         self.label2.setText(ln.langs.get(self.lang, ln.eng).get('wait_stat', '***'))
-        self.label2.move(0, 62)
+        self.label2.move(0, 85)
         
         self.label3 = QLabel(self)  #this label shows how many tracks are found and processed
-        self.label3.resize(400, 20)
+        self.label3.resize(600, 20)
         self.label3.setAlignment(Qt.AlignCenter)
         self.label3.setText(" ")
-        self.label3.move(0, 48)
+        self.label3.move(0, 60)
         
         self.label4 = QLabel(self)  #this label shows how many points are found and processed
-        self.label4.resize(400, 20)
+        self.label4.resize(600, 20)
         self.label4.setAlignment(Qt.AlignCenter)
         self.label4.setText(" ")
-        self.label4.move(0, 34)
+        self.label4.move(0, 35)
         
         self.set = QtWidgets.QPushButton(self)
-       # self.set.setStyleSheet("border: 1px solid grey")
-        self.set.resize(70, 20)
+        #self.set.setStyleSheet("border: 1px solid grey")
+        self.set.resize(80, 30)
         self.set.setText(ln.langs.get(self.lang, ln.eng).get('set_btn', '***'))
-        self.set.move(260, 80)
+        self.set.move(520, 120)
         self.set.clicked.connect(self.open_settings)
         
         self.set_icon = QLabel(self)
         self.set_icon.resize(30, 30)
-        self.set_icon.move(240, 75)
+        self.set_icon.move(497, 120)
         self.set_icon.setPixmap(self.gear)
         
         self.help = QtWidgets.QPushButton(self)
         #self.help.setStyleSheet("border: 1px solid grey")
-        self.help.resize(70, 20)
+        self.help.resize(80, 30)
         self.help.setText(ln.langs.get(self.lang, ln.eng).get('help_btn', '***'))
-        self.help.move(330, 80)
+        self.help.move(520, 150)
         self.help.clicked.connect(self.open_help)
         
         self.gif = QLabel(self)
         self.gif.resize(63, 80)
         self.gif.setAlignment(Qt.AlignCenter)
-        self.gif.move(337, 0)
+        self.gif.move(537, 0)
         self.flag = False
         if os.path.isfile(DATA + "/giphy.gif"):
             self.flag = True

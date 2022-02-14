@@ -5,11 +5,89 @@ import numpy as np
 import random
 import gdal
 import datetime as dt
+import langs as ln
+
 
 gdal.UseExceptions()
 
 SAMPLES = 3600  #number of longitudinal samples in AW3D30 DSM files
 DATA = 'data'   #name of the folder containing misc files
+
+def do_comment(trk_cmt):
+    #print(trk_cmt)
+    if isinstance(trk_cmt, str):
+        trk_cmt = trk_cmt.split(' ')
+    else:
+        trk_cmt = ['1', '1']
+    
+    tdate = trk_cmt[0].split('-')
+    
+    if len(tdate)!=3:
+        tdate = trk_cmt[0].split('.')
+    if len(tdate)!=3:
+        tdate = trk_cmt[0].split('/')
+    if len(tdate)!=3:
+        tdate = str(dt.date.fromtimestamp(time.time()))
+        tdate = [tdate[8:10], tdate[5:7], tdate[0:4]]
+   
+    if len(trk_cmt) > 1:
+        ttime = trk_cmt[1].split(':')
+    else:
+        ttime = ' '
+   
+    if len(ttime)!=3:
+        ttime = str(dt.datetime.fromtimestamp(time.time()))
+        
+        ttime = [ttime[11:13], ttime[14:16], ttime[17:19]]
+    
+    year = tdate[2]
+    month = tdate[1]
+    day = tdate[0]
+    hour = ttime[0]
+    minute = ttime[1]
+    second = ttime[2]
+    
+    if year.isdecimal():
+        if len(year) == 2:
+            year = int(year)
+            year = year + 2000
+        year = int(year)
+    else:
+        year = 0
+        
+    if month.isdecimal():
+        month = int(month)
+        if month > 12 or month <1:
+            month = 1
+    else:
+        month = ln.months.get(month, 1)
+        
+    if day.isdecimal():
+        day = int(day)
+    else:
+        day = 1
+        
+    if hour.isdecimal():
+        hour = int(hour)
+    else:
+        hour = 0
+        
+    if minute.isdecimal():
+        minute = int(minute)
+    else:
+        minute = 0
+        
+    if second.isdecimal():
+        second = int(second)
+    else:
+        second = 0
+
+    speed = None
+    if len(trk_cmt) == 3:
+        if trk_cmt[2].isdecimal():
+            speed = int(trk_cmt[2])
+    
+    return [dt.datetime(year, month, day, hour, minute, second), speed]
 
 def core(creator, q, name, path):#creating an empty GPX track file using a template
     #print(path)
@@ -262,7 +340,6 @@ def timein(array, path):#filling in the date/time values into an resulting GPX t
     output.seek(0)
     temp.seek(0)
     t = "T"
-    z = "Z"
     for i in range(8):
         output.readline()
         temp.readline()
@@ -271,7 +348,6 @@ def timein(array, path):#filling in the date/time values into an resulting GPX t
         output.write(str(array[i+1].date()).encode(encoding='utf-8', errors='strict'))
         output.write(t.encode(encoding='utf-8', errors='strict'))
         output.write(str(array[i+1].time())[:8].encode(encoding='utf-8', errors='strict'))
-        output.write(z.encode(encoding='utf-8', errors='strict'))
         output.write(temp.read(8))
         for j in range(4):
             output.write(temp.readline())
@@ -331,7 +407,11 @@ def time(t1, dist, speed, n):#calculating the timestamp of each track point know
 def speeds(times, dists):#calculating "instant" speed between two points using "real" distance beetween points and their time delta
     spd = []
     spd.append(dists[0])
-    spd.append(0)
+    
+    t = times[2]-times[1]
+    t = t.total_seconds()/3600
+    v = dists[1]/t
+    spd.append(v)
     
     for i in range(dists[0]):
         t = times[i+2]-times[i+1]
@@ -362,33 +442,27 @@ def speedin(array, path):#filling in the "instant" speed values into an resultin
     os.remove(DATA + "/temp.gpx")
     output.close()
 
-def pointin(creator, name, cm, lat, lon, output_path, timestamp):
-    tmplt = open(DATA + "/pnt_tmplt.gpx","rb")
-    file = open(output_path, mode='wb')
-    file.write(tmplt.read(126))
-    file.write(creator.encode(encoding='utf-8', errors='strict'))
-    file.write(tmplt.read(164))
-    file.write(str(lat).encode(encoding='utf-8', errors='strict'))
-    file.write(tmplt.read(7))
-    file.write(str(lon).encode(encoding='utf-8', errors='strict'))
-    
-    file.write(tmplt.read(9))
-    
-    file.write(name.encode(encoding='utf-8', errors='strict'))
-    
-    file.write(tmplt.read(14))
-    
-    file.write(cm.encode(encoding='utf-8', errors='strict'))
-    
-    file.write(tmplt.read(14))
+def pointin(creator, name, cm, lat, lon, output_path, timestamp, ele):
+    file = open(output_path, mode='r+b')
+    contents = file.read()
+    file.seek(len(contents)-7)
     
     t = "T"
-    z = "Z"
+    
+    file.write('<wpt lat="'.encode(encoding='utf-8', errors='strict'))
+    file.write(str(round(lat, 8)).encode(encoding='utf-8', errors='strict'))
+    file.write('" lon="'.encode(encoding='utf-8', errors='strict'))
+    file.write(str(round(lon, 8)).encode(encoding='utf-8', errors='strict'))
+    file.write('">\n<name>'.encode(encoding='utf-8', errors='strict'))
+    file.write(name.encode(encoding='utf-8', errors='strict'))
+    file.write('</name>\n<ele>'.encode(encoding='utf-8', errors='strict'))
+    file.write(str(ele).encode(encoding='utf-8', errors='strict'))
+    file.write('</ele>\n<desc>'.encode(encoding='utf-8', errors='strict'))
+    file.write(cm.encode(encoding='utf-8', errors='strict'))
+    file.write('</desc>\n<time>'.encode(encoding='utf-8', errors='strict'))
     file.write(str(timestamp.date()).encode(encoding='utf-8', errors='strict'))
     file.write(t.encode(encoding='utf-8', errors='strict'))
-    file.write(str(timestamp.time()).encode(encoding='utf-8', errors='strict'))
-    file.write(z.encode(encoding='utf-8', errors='strict'))
+    file.write(str(timestamp.time())[:8].encode(encoding='utf-8', errors='strict'))
+    file.write('</time>\n</wpt>\n</gpx>\n'.encode(encoding='utf-8', errors='strict'))
     
-    file.write(tmplt.read(23))
-    tmplt.close()
     file.close()

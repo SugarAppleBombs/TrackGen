@@ -2,85 +2,22 @@ import methods as mt
 import gpxpy
 import gpxpy.gpx
 import os
-import datetime as dt
 import langs as ln
-import time
+import platform
+if platform.system() == 'Windows':
+    import pywintypes, win32file, win32con
 
-def do_comment(trk_cmt):
-    #print(trk_cmt)
-    if isinstance(trk_cmt, str):
-        trk_cmt = trk_cmt.split(' ')
-    else:
-        trk_cmt = ['1', '1']
-    
-    tdate = trk_cmt[0].split('-')
-    
-    if len(tdate)!=3:
-        tdate = trk_cmt[0].split('.')
-    if len(tdate)!=3:
-        tdate = trk_cmt[0].split('/')
-    if len(tdate)!=3:
-        tdate = str(dt.date.fromtimestamp(time.time()))
-        tdate = [tdate[8:10], tdate[5:7], tdate[0:4]]
-   
-    if len(trk_cmt) > 1:
-        ttime = trk_cmt[1].split(':')
-    else:
-        ttime = ' '
-   
-    if len(ttime)!=3:
-        ttime = str(dt.datetime.fromtimestamp(time.time()))
-        
-        ttime = [ttime[11:13], ttime[14:16], ttime[17:19]]
-    
-    year = tdate[2]
-    month = tdate[1]
-    day = tdate[0]
-    hour = ttime[0]
-    minute = ttime[1]
-    second = ttime[2]
-    
-    if year.isdecimal():
-        if len(year) == 2:
-            year = int(year)
-            year = year + 2000
-        year = int(year)
-    else:
-        year = 0
-        
-    if month.isdecimal():
-        month = int(month)
-        if month > 12 or month <1:
-            month = 1
-    else:
-        month = ln.months.get(month, 1)
-        
-    if day.isdecimal():
-        day = int(day)
-    else:
-        day = 1
-        
-    if hour.isdecimal():
-        hour = int(hour)
-    else:
-        hour = 0
-        
-    if minute.isdecimal():
-        minute = int(minute)
-    else:
-        minute = 0
-        
-    if second.isdecimal():
-        second = int(second)
-    else:
-        second = 0
+def changeFileCreationTime(fname, newtime):
+    wintime = pywintypes.Time(newtime)
+    winfile = win32file.CreateFile(
+        fname, win32con.GENERIC_WRITE,
+        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
+        None, win32con.OPEN_EXISTING,
+        win32con.FILE_ATTRIBUTE_NORMAL, None)
 
-    speed = None
-    if len(trk_cmt) == 3:
-        if trk_cmt[2].isdecimal():
-            speed = int(trk_cmt[2])
-    
-    return [dt.datetime(year, month, day, hour, minute, second), speed]
+    win32file.SetFileTime(winfile, wintime, None, None)
+
+    winfile.close()
 
 def generate(main_path, window):#main function
     
@@ -108,7 +45,7 @@ def generate(main_path, window):#main function
         pnt_cmt = []
         pnt_lat = []
         pnt_lon = []
-        output_point_path = []
+        pnt_ele = []
         pnt_done = []
         
         for i, waypoint in enumerate(gpx.waypoints):
@@ -136,9 +73,10 @@ def generate(main_path, window):#main function
             else:
                 pnt_lon.append(0.0)
                 
+            pnt_ele.append(mt.ele([1, waypoint.latitude, waypoint.longitude], window.hgtdir)[1])
+            
             pnt_done.append(False)
             pnt_name[i] = pnt_name[i].translate({ord(c): None for c in '<>:"|?*'})
-            output_point_path.append(output_path + "/" + pnt_name[i] + ".gpx")
            
     total_length = 0    #combined length of all found tracks and routes in km
     pnt_counter = 0     #well, duh
@@ -154,7 +92,7 @@ def generate(main_path, window):#main function
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
         #print('comment is ', trk_cmt)
-        comment = do_comment(trk_cmt)
+        comment = mt.do_comment(trk_cmt)
         #print('comment read as ', comment)
         start = comment[0]
         speed = 30
@@ -227,12 +165,25 @@ def generate(main_path, window):#main function
                 if not pnt_done[i]:
                     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
+                    timestamp_index = 0
                     for j in range(1, times[0]):
                         point_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
-                        min_dist = min([min_dist, point_dist])
+                        if point_dist < min_dist:
+                            min_dist = point_dist
+                            timestamp_index = j
+                       
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_point_path[i], times[j])
+                        
+                        output_track_points_path = output_track_path[:len(output_track_path)-4] + ' + p.gpx'
+                        if pnt_counter == 0:
+                            track = open(output_track_path, mode='rb')
+                            track_with_points = open(output_track_points_path, mode='wb')
+                            track_with_points.write(track.read())
+                            track.close()
+                            track_with_points.close()
+                            
+                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
                             strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
@@ -250,7 +201,15 @@ def generate(main_path, window):#main function
                             strng = "1 " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                         window.label4.setText(strng)
                         window.update()
-    
+                        
+        tim = int(round(times[-1].timestamp()))   
+        os.utime(output_track_path, (tim, tim))
+        os.utime(output_track_points_path, (tim, tim))             
+        if platform.system() == 'Windows':
+            changeFileCreationTime(output_track_path, tim)
+            changeFileCreationTime(output_track_points_path, tim)
+            
+        
     for track in gpx.tracks:
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
@@ -261,7 +220,7 @@ def generate(main_path, window):#main function
         output_track_path = output_path + "/" + trk_name + ".gpx"
         
         #print('comment is ', trk_cmt)
-        comment = do_comment(trk_cmt)
+        comment = mt.do_comment(trk_cmt)
         #print('comment read as ', comment)
         start = comment[0]
         speed = 30
@@ -334,12 +293,26 @@ def generate(main_path, window):#main function
                 if not pnt_done[i]:
                     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
+                    timestamp_index = 0
                     for j in range(1, times[0]):
                         point_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
-                        min_dist = min([min_dist, point_dist])
+                        if point_dist < min_dist:
+                            min_dist = point_dist
+                            timestamp_index = j
+                            
+                       
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_point_path[i], times[j])
+                        
+                        output_track_points_path = output_track_path[:len(output_track_path)-4] + '+t.gpx'
+                        if pnt_counter == 0:
+                            track = open(output_track_path, mode='rb')
+                            track_with_points = open(output_track_points_path, mode='wb')
+                            track_with_points.write(track.read())
+                            track.close()
+                            track_with_points.close()
+                            
+                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
                             strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
@@ -356,7 +329,13 @@ def generate(main_path, window):#main function
                         if pnt_counter == 1:
                             strng = "1 " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                         window.label4.setText(strng)
-                        window.update()     
+                        window.update()  
+        tim = int(round(times[-1].timestamp()))   
+        os.utime(output_track_path, (tim, tim))
+        os.utime(output_track_points_path, (tim, tim))             
+        if platform.system() == 'Windows':
+            changeFileCreationTime(output_track_path, tim)
+            changeFileCreationTime(output_track_points_path, tim)
     
     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('done_stat', '***'))
     window.sign.setPixmap(window.checkmark)
