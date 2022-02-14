@@ -203,14 +203,7 @@ def generate(main_path, window):#main function
                         window.label4.setText(strng)
                         window.update()
                         
-        tim = int(round(times[-1].timestamp()))   
-        os.utime(output_track_path, (tim, tim))
-        if route_pnt_flag:
-            os.utime(output_track_points_path, (tim, tim))             
-        if platform.system() == 'Windows':
-            changeFileCreationTime(output_track_path, tim)
-            if route_pnt_flag:
-                changeFileCreationTime(output_track_points_path, tim)
+        
             
         
     for track in gpx.tracks:
@@ -334,13 +327,7 @@ def generate(main_path, window):#main function
                         window.label4.setText(strng)
                         window.update()  
         tim = int(round(times[-1].timestamp()))   
-        os.utime(output_track_path, (tim, tim))
-        if track_pnt_flag:
-            os.utime(output_track_points_path, (tim, tim))             
-        if platform.system() == 'Windows':
-            changeFileCreationTime(output_track_path, tim)
-            if track_pnt_flag:
-                changeFileCreationTime(output_track_points_path, tim)
+        
     
     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('done_stat', '***'))
     window.sign.setPixmap(window.checkmark)
