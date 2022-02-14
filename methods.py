@@ -365,7 +365,7 @@ def generate_spds(mean_spd, n):
     first_y = []
     first_x = []
 
-    first_y.append((random.random() - 0.5)*2*5)
+    first_y.append((random.random() - 0.5)*mean_spd*0.15)
     first_x.append(1)
     for i in range(int(random.random()*15) + 15):
         dec = random.random()
@@ -375,16 +375,15 @@ def generate_spds(mean_spd, n):
         else:
             first_y.append(first_y[i-1])
         first_x.append(i+2)
-    
+
     mytck,myu=interpolate.splprep([first_x,first_y], s = 80.0, k = 1)
     xnew,ynew= interpolate.splev(np.linspace(0,1,len(result)),mytck)
-    
+
+    for i in range(n+1):
+        ynew[i] = ynew[i] * (1 + (random.random() - 0.5)*0.7) * (1 + (random.random() - 0.5)*0.7) 
+
     for i in range(n+1):
         result[i] += ynew[i]
-        if random.random()>0.05:
-            result[i] += (random.random()-0.5)*(random.random()-0.5)*6
-        if random.random()>0.95:
-            result[i] += (random.random()-0.5)*(random.random()-0.5)*12
             
     return result
 

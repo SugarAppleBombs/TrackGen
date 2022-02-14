@@ -85,12 +85,13 @@ def generate(main_path, window):#main function
     for i, route in enumerate(gpx.routes):
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
+        route_pnt_flag = False
         #print('Route: ', route.name)
         trk_name = route.name
         trk_cmt = route.comment
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
-        
+        output_track_points_path = output_track_path[:len(output_track_path)-4] + ' + p.gpx'
         #print('comment is ', trk_cmt)
         comment = mt.do_comment(trk_cmt)
         #print('comment read as ', comment)
@@ -174,14 +175,14 @@ def generate(main_path, window):#main function
                        
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        
-                        output_track_points_path = output_track_path[:len(output_track_path)-4] + ' + p.gpx'
+                        route_pnt_flag = True
                         if pnt_counter == 0:
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
                             track_with_points.write(track.read())
                             track.close()
                             track_with_points.close()
+                            
                             
                         mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
@@ -204,21 +205,24 @@ def generate(main_path, window):#main function
                         
         tim = int(round(times[-1].timestamp()))   
         os.utime(output_track_path, (tim, tim))
-        os.utime(output_track_points_path, (tim, tim))             
+        if route_pnt_flag:
+            os.utime(output_track_points_path, (tim, tim))             
         if platform.system() == 'Windows':
             changeFileCreationTime(output_track_path, tim)
-            changeFileCreationTime(output_track_points_path, tim)
+            if route_pnt_flag:
+                changeFileCreationTime(output_track_points_path, tim)
             
         
     for track in gpx.tracks:
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
+        track_pnt_flag = False
         #print('Track: ', track.name)
         trk_name = track.name
         trk_cmt = track.comment
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
-        
+        output_track_points_path = output_track_path[:len(output_track_path)-4] + '+t.gpx'
         #print('comment is ', trk_cmt)
         comment = mt.do_comment(trk_cmt)
         #print('comment read as ', comment)
@@ -303,8 +307,7 @@ def generate(main_path, window):#main function
                        
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        
-                        output_track_points_path = output_track_path[:len(output_track_path)-4] + '+t.gpx'
+                        track_pnt_flag = True
                         if pnt_counter == 0:
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
@@ -332,10 +335,12 @@ def generate(main_path, window):#main function
                         window.update()  
         tim = int(round(times[-1].timestamp()))   
         os.utime(output_track_path, (tim, tim))
-        os.utime(output_track_points_path, (tim, tim))             
+        if track_pnt_flag:
+            os.utime(output_track_points_path, (tim, tim))             
         if platform.system() == 'Windows':
             changeFileCreationTime(output_track_path, tim)
-            changeFileCreationTime(output_track_points_path, tim)
+            if track_pnt_flag:
+                changeFileCreationTime(output_track_points_path, tim)
     
     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('done_stat', '***'))
     window.sign.setPixmap(window.checkmark)
