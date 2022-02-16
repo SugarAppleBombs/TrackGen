@@ -169,7 +169,6 @@ def generate(main_path, window):#main function
                     for j in range(1, times[0]):
                         point_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
                         if point_dist < min_dist:
-                            print(timestamp_index)
                             min_dist = point_dist
                             timestamp_index = j
                        
@@ -182,7 +181,6 @@ def generate(main_path, window):#main function
                             track.close()
                             track_with_points.close()
                             
-                        print('\n', timestamp_index)
                         mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
@@ -288,7 +286,7 @@ def generate(main_path, window):#main function
                 if not pnt_done[i]:
                     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
-                    timestamp_index = 0
+                    timestamp_index = 1
                     for j in range(1, times[0]):
                         point_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
                         if point_dist < min_dist:
