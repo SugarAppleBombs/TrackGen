@@ -85,7 +85,6 @@ def generate(main_path, window):#main function
     for i, route in enumerate(gpx.routes):
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
-        route_pnt_flag = False
         #print('Route: ', route.name)
         trk_name = route.name
         trk_cmt = route.comment
@@ -166,16 +165,16 @@ def generate(main_path, window):#main function
                 if not pnt_done[i]:
                     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
-                    timestamp_index = 0
+                    timestamp_index = 1
                     for j in range(1, times[0]):
                         point_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[2*j+1], result_coords[2*(j+1)])
                         if point_dist < min_dist:
+                            print(timestamp_index)
                             min_dist = point_dist
                             timestamp_index = j
                        
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        route_pnt_flag = True
                         if pnt_counter == 0:
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
@@ -183,7 +182,7 @@ def generate(main_path, window):#main function
                             track.close()
                             track_with_points.close()
                             
-                            
+                        print('\n', timestamp_index)
                         mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
@@ -209,7 +208,6 @@ def generate(main_path, window):#main function
     for track in gpx.tracks:
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
-        track_pnt_flag = False
         #print('Track: ', track.name)
         trk_name = track.name
         trk_cmt = track.comment
@@ -300,7 +298,6 @@ def generate(main_path, window):#main function
                        
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        track_pnt_flag = True
                         if pnt_counter == 0:
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
@@ -326,7 +323,6 @@ def generate(main_path, window):#main function
                             strng = "1 " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                         window.label4.setText(strng)
                         window.update()  
-        tim = int(round(times[-1].timestamp()))   
         
     
     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('done_stat', '***'))
