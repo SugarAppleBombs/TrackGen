@@ -33,6 +33,7 @@ eng = {
 'wrong': 'Something went wrong during processing closing the programm is recommended',
 'save': 'Save',
 'wait': 'Please, Wait',
+'reading': 'Reading the GPX File',
 'creator': 'Creator Name'
 }
 
@@ -70,6 +71,7 @@ rus = {
 'too_long': 'Обработка занимает много времени, вероятно трек слишком длинный',
 'wrong': 'Что-то пошло не так при обработке, рекомендуется закрыть программу',
 'wait': 'Пожалуйста, Подождите',
+'reading': 'Считывается GPX Файл',
 'creator': 'Имя Создателя'
 }
 

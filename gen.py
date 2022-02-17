@@ -35,6 +35,7 @@ def generate(main_path, window):#main function
         os.makedirs(output_path)
         
     #parse GPX file
+    window.label2.setText(ln.langs.get(window.lang, ln.eng).get('reading', '***'))
     gpx = gpxpy.parse(main)
     
     #searching for waypoints
@@ -83,6 +84,7 @@ def generate(main_path, window):#main function
     trk_count = 0
     
     for i, route in enumerate(gpx.routes):
+        trk_point_counter = 0
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
         #print('Route: ', route.name)
@@ -108,39 +110,50 @@ def generate(main_path, window):#main function
             coords.append(float(point.longitude))
         coords.insert(0, int(len(coords)/2))
         
-        dst = mt.dist(coords)
+        if coords[0] > 1:
+            dst = mt.dist(coords)
+            
+            n = int(1800*sum(dst[1:])/speed)
+            
+            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+            
+            dst = mt.dist(result_coords)
+            
+            times = mt.time(start, dst, speed, n)
+            
+            total_length += sum(mt.dist(result_coords)[1:])
+            
+            elevations = mt.ele(result_coords, window.hgtdir)
+            
+            spd = mt.speeds(times, mt.dist(result_coords))
         
-        n = int(1800*sum(dst[1:])/speed)
-        
-        result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
-        
-        dst = mt.dist(result_coords)
-        
-        times = mt.time(start, dst, speed, n)
-        
-        total_length += sum(mt.dist(result_coords)[1:])
-        
-        elevations = mt.ele(result_coords, window.hgtdir)
-        
-        spd = mt.speeds(times, mt.dist(result_coords))
-        
-        #next 5 functions create an empty GPX track file and fill it with data
-        #they should be executed exactly in this order:
-        #core()
-        #coordin()
-        #elein()
-        #timein()
-        #speedin()
-        
-        mt.core(window.creator, n, trk_name, output_track_path)
-        
-        mt.coordin(result_coords, output_track_path)
-        
-        mt.elein(elevations, output_track_path)
-        
-        mt.timein(times, output_track_path)
-        
-        mt.speedin(spd, output_track_path)
+            #next 5 functions create an empty GPX track file and fill it with data
+            #they should be executed exactly in this order:
+            #core()
+            #coordin()
+            #elein()
+            #timein()
+            #speedin()
+            
+            mt.core(window.creator, n, trk_name, output_track_path)
+            
+            mt.coordin(result_coords, output_track_path)
+            
+            mt.elein(elevations, output_track_path)
+            
+            mt.timein(times, output_track_path)
+            
+            mt.speedin(spd, output_track_path)
+        else:
+            mt.core(window.creator, 1, trk_name, output_track_path)
+            
+            mt.coordin(coords, output_track_path)
+            
+            mt.elein(mt.ele(coords, window.hgtdir), output_track_path)
+            
+            mt.timein([1, start], output_track_path)
+            
+            mt.speedin([1, 0], output_track_path)
             
         if 2 <= (trk_count)%10 <= 4 and not(12 <= (trk_count)%100 <= 14):
             tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
@@ -174,7 +187,8 @@ def generate(main_path, window):#main function
                        
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        if pnt_counter == 0:
+                        if trk_point_counter == 0:
+                            trk_point_counter += 1
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
                             track_with_points.write(track.read())
@@ -204,6 +218,7 @@ def generate(main_path, window):#main function
             
         
     for track in gpx.tracks:
+        trk_point_counter = 0
         window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
         #print('Track: ', track.name)
@@ -211,7 +226,7 @@ def generate(main_path, window):#main function
         trk_cmt = track.comment
         trk_name = trk_name.translate({ord(c): None for c in '<>:"|?*'})
         output_track_path = output_path + "/" + trk_name + ".gpx"
-        output_track_points_path = output_track_path[:len(output_track_path)-4] + '+t.gpx'
+        output_track_points_path = output_track_path[:len(output_track_path)-4] + ' + p.gpx'
         #print('comment is ', trk_cmt)
         comment = mt.do_comment(trk_cmt)
         #print('comment read as ', comment)
@@ -228,40 +243,51 @@ def generate(main_path, window):#main function
                 coords.append(float(point.latitude))
                 coords.append(float(point.longitude))
         coords.insert(0, int(len(coords)/2))
+            
+        if coords[0] > 1:
+            dst = mt.dist(coords)
+            
+            n = int(1800*sum(dst[1:])/speed)
+            
+            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+            
+            dst = mt.dist(result_coords)
+            
+            times = mt.time(start, dst, speed, n)
+            
+            total_length += sum(mt.dist(result_coords)[1:])
+            
+            elevations = mt.ele(result_coords, window.hgtdir)
+            
+            spd = mt.speeds(times, mt.dist(result_coords))
         
-        dst = mt.dist(coords)
-        
-        n = int(1800*sum(dst[1:])/speed)
-        
-        result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
-        
-        dst = mt.dist(result_coords)
-        
-        times = mt.time(start, dst, speed, n)
-        
-        total_length += sum(mt.dist(result_coords)[1:])
-        
-        elevations = mt.ele(result_coords, window.hgtdir)
-        
-        spd = mt.speeds(times, mt.dist(result_coords))
-        
-        #next 5 functions create an empty GPX track file and fill it with data
-        #they should be executed exactly in this order:
-        #core()
-        #coordin()
-        #elein()
-        #timein()
-        #speedin()
-        
-        mt.core(window.creator, n, trk_name, output_track_path)
-        
-        mt.coordin(result_coords, output_track_path)
-        
-        mt.elein(elevations, output_track_path)
-        
-        mt.timein(times, output_track_path)
-        
-        mt.speedin(spd, output_track_path)
+            #next 5 functions create an empty GPX track file and fill it with data
+            #they should be executed exactly in this order:
+            #core()
+            #coordin()
+            #elein()
+            #timein()
+            #speedin()
+            
+            mt.core(window.creator, n, trk_name, output_track_path)
+            
+            mt.coordin(result_coords, output_track_path)
+            
+            mt.elein(elevations, output_track_path)
+            
+            mt.timein(times, output_track_path)
+            
+            mt.speedin(spd, output_track_path)
+        else:
+            mt.core(window.creator, 1, trk_name, output_track_path)
+            
+            mt.coordin(coords, output_track_path)
+            
+            mt.elein(mt.ele(coords, window.hgtdir), output_track_path)
+            
+            mt.timein([1, start], output_track_path)
+            
+            mt.speedin([1, 0], output_track_path)
             
         if 2 <= (trk_count)%10 <= 4 and not(12 <= (trk_count)%100 <= 14):
             tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
@@ -292,11 +318,10 @@ def generate(main_path, window):#main function
                         if point_dist < min_dist:
                             min_dist = point_dist
                             timestamp_index = j
-                            
-                       
                     if min_dist < 0.01:
                         pnt_done[i] = True
-                        if pnt_counter == 0:
+                        if trk_point_counter == 0:
+                            trk_point_counter += 1
                             track = open(output_track_path, mode='rb')
                             track_with_points = open(output_track_points_path, mode='wb')
                             track_with_points.write(track.read())

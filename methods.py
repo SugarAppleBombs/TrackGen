@@ -27,7 +27,7 @@ def do_comment(trk_cmt):
     if len(tdate)!=3:
         tdate = trk_cmt[0].split('/')
     if len(tdate)!=3:
-        tdate = str(dt.date.fromtimestamp(time.time()))
+        tdate = str(dt.datetime.now())
         tdate = [tdate[8:10], tdate[5:7], tdate[0:4]]
    
     if len(trk_cmt) > 1:
@@ -36,7 +36,7 @@ def do_comment(trk_cmt):
         ttime = ' '
    
     if len(ttime)!=3:
-        ttime = str(dt.datetime.fromtimestamp(time.time()))
+        ttime = str(dt.datetime.now())
         
         ttime = [ttime[11:13], ttime[14:16], ttime[17:19]]
     
@@ -405,7 +405,7 @@ def time(t1, dist, speed, n):#calculating the timestamp of each track point know
 
 def speeds(times, dists):#calculating "instant" speed between two points using "real" distance beetween points and their time delta
     spd = []
-    spd.append(dists[0])
+    spd.append(dists[0]+1)
     
     t = times[2]-times[1]
     t = t.total_seconds()/3600
@@ -430,7 +430,7 @@ def speedin(array, path):#filling in the "instant" speed values into an resultin
     for i in range(9):
         output.readline()
         temp.readline()
-    for i in range(array[0]+1):
+    for i in range(array[0]):
         output.write(temp.read(7))
         output.write(str(round(array[i+1], 1)).encode(encoding='utf-8', errors='strict'))
         output.write(temp.read(9))
@@ -447,7 +447,6 @@ def pointin(creator, name, cm, lat, lon, output_path, timestamp, ele):
     file.seek(len(contents)-7)
     
     t = "T"
-    
     file.write('<wpt lat="'.encode(encoding='utf-8', errors='strict'))
     file.write(str(round(lat, 8)).encode(encoding='utf-8', errors='strict'))
     file.write('" lon="'.encode(encoding='utf-8', errors='strict'))
