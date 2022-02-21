@@ -195,7 +195,7 @@ def generate(main_path, window):#main function
                             track.close()
                             track_with_points.close()
                             
-                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
+                        mt.pointin(window.creator, name, pnt_cmt[i], result_coords[2*timestamp_index+1], result_coords[2*(timestamp_index+1)], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
                             strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
@@ -327,8 +327,8 @@ def generate(main_path, window):#main function
                             track_with_points.write(track.read())
                             track.close()
                             track_with_points.close()
-                            
-                        mt.pointin(window.creator, name, pnt_cmt[i], pnt_lat[i], pnt_lon[i], output_track_points_path, times[timestamp_index], pnt_ele[i])
+                        
+                        mt.pointin(window.creator, name, pnt_cmt[i], result_coords[2*timestamp_index+1], result_coords[2*(timestamp_index+1)], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
                             strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')

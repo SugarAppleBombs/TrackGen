@@ -199,8 +199,8 @@ def spline(length, array):#cubic spline for a track(should convert track to Merc
     xnew,ynew= interpolate.splev(np.linspace(0,1,length),mytck)
     out[0] = len(xnew)
     for i in range(length):
-        out.append(xnew[i] + xnew[i] * 0.0001/length * (random.random() - 0.5))     #resulting x/y coordinates are slightly randomized scaling with overall track length
-        out.append(ynew[i] + ynew[i] * 0.0001/length * (random.random() - 0.5))
+        out.append(xnew[i] + xnew[i] * 0.0000002 * (random.random() - 0.5))     #resulting x/y coordinates are slightly randomized scaling with overall track length
+        out.append(ynew[i] + ynew[i] * 0.0000002 * (random.random() - 0.5))
     #print('spline is done')
     return out
 
