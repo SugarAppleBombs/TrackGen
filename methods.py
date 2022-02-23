@@ -445,10 +445,9 @@ def pointin(creator, name, cm, lat, lon, output_path, timestamp, ele):
     file = open(output_path, mode='rb')
     contents = file.read()
     file.close()
-    file = open(output_path, mode='wb')
+    file = open(output_path, mode='r+b')
     file.seek(len(contents)-7)
     
-    t = "T"
     file.write('<wpt lat="'.encode(encoding='utf-8', errors='strict'))
     file.write(str(round(lat, 8)).encode(encoding='utf-8', errors='strict'))
     file.write('" lon="'.encode(encoding='utf-8', errors='strict'))
@@ -461,7 +460,7 @@ def pointin(creator, name, cm, lat, lon, output_path, timestamp, ele):
     file.write(cm.encode(encoding='utf-8', errors='strict'))
     file.write('</desc>\n<time>'.encode(encoding='utf-8', errors='strict'))
     file.write(str(timestamp.date()).encode(encoding='utf-8', errors='strict'))
-    file.write(t.encode(encoding='utf-8', errors='strict'))
+    file.write("T".encode(encoding='utf-8', errors='strict'))
     file.write(str(timestamp.time())[:8].encode(encoding='utf-8', errors='strict'))
     file.write('</time>\n</wpt>\n</gpx>\n'.encode(encoding='utf-8', errors='strict'))
     

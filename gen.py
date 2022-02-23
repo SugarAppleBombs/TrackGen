@@ -95,7 +95,7 @@ def generate(main_path, window):#main function
     
     for i, route in enumerate(gpx.routes):
         trk_point_counter = 0
-        window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
+        window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ' ' + route.name + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
         #print('Route: ', route.name)
         trk_name = route.name
@@ -186,7 +186,7 @@ def generate(main_path, window):#main function
         if window.point:
             for i, name in enumerate(pnt_name):
                 if not pnt_done[i]:
-                    window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
+                    window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ' ' + name + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
                     timestamp_index = 1
                     for j in range(1, times[0]):
@@ -229,7 +229,7 @@ def generate(main_path, window):#main function
         
     for track in gpx.tracks:
         trk_point_counter = 0
-        window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
+        window.label2.setText(ln.langs.get(window.lang, ln.eng).get('trk_proc', '***') + ' ' + track.name + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
         trk_count += 1
         #print('Track: ', track.name)
         trk_name = track.name
@@ -320,7 +320,7 @@ def generate(main_path, window):#main function
         if window.point:
             for i, name in enumerate(pnt_name):
                 if not pnt_done[i]:
-                    window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
+                    window.label2.setText(ln.langs.get(window.lang, ln.eng).get('pnt_proc', '***') + ' ' + name + ', ' + ln.langs.get(window.lang, ln.eng).get('wait', '***'))
                     min_dist = mt.haversine(pnt_lat[i], pnt_lon[i], result_coords[1], result_coords[2])
                     timestamp_index = 1
                     for j in range(1, times[0]):
