@@ -38,6 +38,16 @@ def generate(main_path, window):#main function
     window.label2.setText(ln.langs.get(window.lang, ln.eng).get('reading', '***'))
     gpx = gpxpy.parse(main)
     
+    track_count = 0
+    waypoint_count = 0
+    
+    for route in gpx.routes:
+        track_count += 1
+    for track in gpx.tracks:
+        track_count += 1
+    for waypoint in gpx.waypoints:
+        waypoint_count += 1
+        
     #searching for waypoints
     if window.point:
         
@@ -156,19 +166,19 @@ def generate(main_path, window):#main function
             mt.speedin([1, 0], output_track_path)
             
         if 2 <= (trk_count)%10 <= 4 and not(12 <= (trk_count)%100 <= 14):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if (12 <= (trk_count)%100 <= 14) or 5 <= (trk_count)%10 <= 9 or (trk_count)%10 == 0:
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if (trk_count)%10 == 1 and ((trk_count)%100 != 11):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if ((trk_count)%100 == 11):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if i == 0:
-            tmp = "1 " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = "1" + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         window.label3.setText(tmp)
         window.update()
@@ -198,19 +208,19 @@ def generate(main_path, window):#main function
                         mt.pointin(window.creator, name, pnt_cmt[i], result_coords[2*timestamp_index+1], result_coords[2*(timestamp_index+1)], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if (12 <= (pnt_counter)%100 <= 14) or 5 <= (pnt_counter)%10 <= 9 or (pnt_counter)%10 == 0:
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if (pnt_counter)%10 == 1 and ((pnt_counter)%100 != 11):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                             
                         if ((pnt_counter)%100 == 11):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if pnt_counter == 1:
-                            strng = "1 " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
+                            strng = "1" + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                         window.label4.setText(strng)
                         window.update()
                         
@@ -290,19 +300,19 @@ def generate(main_path, window):#main function
             mt.speedin([1, 0], output_track_path)
             
         if 2 <= (trk_count)%10 <= 4 and not(12 <= (trk_count)%100 <= 14):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_2', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if (12 <= (trk_count)%100 <= 14) or 5 <= (trk_count)%10 <= 9 or (trk_count)%10 == 0:
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if (trk_count)%10 == 1 and ((trk_count)%100 != 11):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if ((trk_count)%100 == 11):
-            tmp = str(trk_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = str(trk_count) + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_3', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         if i == 0:
-            tmp = "1 " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
+            tmp = "1" + "/" + str(track_count) + " " + ln.langs.get(window.lang, ln.eng).get('trk_count_1', '***') + ", " + str(round(total_length, 3)) + " " + ln.langs.get(window.lang, ln.eng).get('length', '***')
             
         window.label3.setText(tmp)
         window.update()
@@ -331,19 +341,19 @@ def generate(main_path, window):#main function
                         mt.pointin(window.creator, name, pnt_cmt[i], result_coords[2*timestamp_index+1], result_coords[2*(timestamp_index+1)], output_track_points_path, times[timestamp_index], pnt_ele[i])
                         pnt_counter += 1
                         if 2 <= (pnt_counter)%10 <= 4 and not(12 <= (pnt_counter+1)%100 <= 14):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_2', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if (12 <= (pnt_counter)%100 <= 14) or 5 <= (pnt_counter)%10 <= 9 or (pnt_counter)%10 == 0:
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if (pnt_counter)%10 == 1 and ((pnt_counter)%100 != 11):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                             
                         if ((pnt_counter)%100 == 11):
-                            strng = str(pnt_counter) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
+                            strng = str(pnt_counter) + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_3', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_2', '***')
                             
                         if pnt_counter == 1:
-                            strng = "1 " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
+                            strng = "1" + "/" + str(waypoint_count) + " " + ln.langs.get(window.lang, ln.eng).get('pnt_count_1', '***') + " " + ln.langs.get(window.lang, ln.eng).get('snapped_1', '***')
                         window.label4.setText(strng)
                         window.update()  
         
