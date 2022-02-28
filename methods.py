@@ -61,24 +61,36 @@ def do_comment(trk_cmt):
             month = 1
     else:
         month = ln.months.get(month, 1)
-        
+    
     if day.isdecimal():
         day = int(day)
+        if (year%4 == 0 and not year%100 == 0) or (year%400 == 0):
+            if not 0 <= day <= ln.daycounts_leap.get(month):
+                day = 1
+        else:
+            if not 0 <= day <= ln.daycounts_normal.get(month):
+                day = 1
     else:
         day = 1
         
     if hour.isdecimal():
         hour = int(hour)
+        if not 0 <= hour <= 24:
+            hour = 0
     else:
         hour = 0
         
     if minute.isdecimal():
         minute = int(minute)
+        if not 0 <= minute <= 59:
+            minute = 0
     else:
         minute = 0
         
     if second.isdecimal():
         second = int(second)
+        if not 0 <= second <= 59:
+            second = 0
     else:
         second = 0
 
