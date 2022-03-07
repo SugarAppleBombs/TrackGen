@@ -7,7 +7,6 @@ import gdal
 import datetime as dt
 import langs as ln
 
-
 gdal.UseExceptions()
 
 SAMPLES = 3600  #number of longitudinal samples in AW3D30 DSM files
@@ -377,26 +376,28 @@ def generate_spds(mean_spd, n):
     first_y = []
     first_x = []
 
-    first_y.append((random.random() - 0.5)*mean_spd*0.15)
+    first_y.append((0.95+random.random()*0.1)*mean_spd)
     first_x.append(1)
     for i in range(int(random.random()*15) + 15):
         dec = random.random()
-        if dec>0.3:
-            new = (random.random() - 0.5)*2*5
+        if dec>0.1:
+            new = (0.95+random.random()*0.1)*mean_spd + random.random() - 0.5
             first_y.append(new)
         else:
             first_y.append(first_y[i-1])
         first_x.append(i+2)
-
-    mytck,myu=interpolate.splprep([first_x,first_y], s = 80.0, k = 1)
+    
+    mytck,myu=interpolate.splprep([first_x,first_y], s = 0.2, k = 1)
     xnew,ynew= interpolate.splev(np.linspace(0,1,len(result)),mytck)
-
+    
     for i in range(n+1):
-        ynew[i] = ynew[i] * (1 + (random.random() - 0.5)*0.7) * (1 + (random.random() - 0.5)*0.7) 
+        if random.random()>0.5 or i == 0 or i == len(result)+1:
+            result[i] = ynew[i] * (0.85+random.random()*0.3)
+        elif i>0:
+            result[i] = result[i-1]
+        if random.random()>0.9:
+            result[i] += result[i] * (0.85+random.random()*0.3) * 0.1
 
-    for i in range(n+1):
-        result[i] += ynew[i]
-            
     return result
 
 def time(t1, dist, speed, n):#calculating the timestamp of each track point knowing timestamp of the first point and average speed
