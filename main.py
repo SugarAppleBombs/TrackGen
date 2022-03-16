@@ -9,7 +9,7 @@ import webbrowser
 import langs as ln
 import gen
 DATA = 'data'   #name of the folder containing misc files
-CONFIG = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\n'
+CONFIG = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\ntimeshift = +0\n'
 def change_cfg(param, value):
     if not os.path.isfile(DATA + "/config.cfg"): 
         cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
@@ -87,7 +87,7 @@ class Settings(QDialog):
         self.left = 10
         self.top = 10
         self.width = 420
-        self.height = 145
+        self.height = 185
         self.initUI(parent)
     
     def initUI(self, parent):
@@ -155,18 +155,74 @@ class Settings(QDialog):
         self.label1.move(2, 40)
         
         self.cb = QCheckBox(ln.langs.get(self.parent.lang, ln.eng).get('snap_chk', '***'), self)
-        self.cb.move(1, 120)
+        self.cb.move(1, 160)
         self.cb.resize(155, 20)
         self.cb.setChecked(self.parent.point)
         self.cb.stateChanged.connect(self.changeState)
-    
+        
+        self.timeshift = QLabel(self)
+        self.timeshift.resize(200, 30)
+        self.timeshift.setText(ln.langs.get(self.parent.lang, ln.eng).get('timeshift', '***'))
+        self.timeshift.move(2, 120)
+        
+        self.timeshifttxt = QLineEdit(self)
+        self.timeshifttxt.move(180, 121)
+        self.timeshifttxt.resize(50, 28)
+        self.timeshifttxt.setText(read_cfg('timeshift'))
+        self.timeshifttxt.textChanged.connect(self.remove_checkmark1)
+        
+        self.savetime = QtWidgets.QPushButton(self)   #save button
+        #self.save_cr.setStyleSheet("border: 1px solid grey")
+        self.savetime.move(340, 120)
+        self.savetime.resize(80, 30)
+        self.savetime.setText(ln.langs.get(self.parent.lang, ln.eng).get('save', '***'))
+        self.savetime.clicked.connect(self.save_time)
+        
+        self.pic_holder1 = QLabel(self)
+        self.pic_holder1.resize(20, 20)
+        self.pic_holder1.move(310, 120)
+        
     def remove_checkmark(self):   
         self.pic_holder.clear()
+        
+    def remove_checkmark1(self):   
+        self.pic_holder1.clear()
         
     def save_creator(self):
         self.parent.creator = self.textEdit.text()
         change_cfg('creator', self.parent.creator)
         self.pic_holder.setPixmap(self.parent.checkmark)
+    
+    def save_time(self):
+        text = self.timeshifttxt.text()
+        
+        if text[0]!='+' and text[0]!='-':
+            text = '+' + text
+            
+        if text[1:].isdecimal():
+            if -12 <= int(text[1:]) <= 12:
+                self.parent.timeshift = text
+                change_cfg('timeshift', self.parent.timeshift)
+                self.timeshifttxt.setText(text)
+                self.pic_holder1.setPixmap(self.parent.checkmark)
+            else:
+                self.pic_holder1.setPixmap(self.parent.warning)
+        elif len(text[1:].split(':')) == 2:
+            temp = text[1:].split(':')
+            if temp[0].isdecimal() and temp[1].isdecimal():
+                if -12 <= int(temp[0]) <= 12 and 0 <= int(temp[1]) <= 59:
+                    self.parent.timeshift = text
+                    change_cfg('timeshift', self.parent.timeshift)
+                    self.timeshifttxt.setText(text)
+                    self.pic_holder1.setPixmap(self.parent.checkmark)
+                else:
+                    self.pic_holder1.setPixmap(self.parent.warning)
+            else:
+                self.pic_holder1.setPixmap(self.parent.warning)
+                
+        else:
+            self.pic_holder1.setPixmap(self.parent.warning)
+            
      
     def openFileNameDialog(self):
         options = QFileDialog.Options()
@@ -196,6 +252,8 @@ class Settings(QDialog):
         self.parent.help.setText(ln.langs.get(self.parent.lang, ln.eng).get('help_btn', '***'))
         self.parent.set.setText(ln.langs.get(self.parent.lang, ln.eng).get('set_btn', '***'))
         self.parent.sign.setPixmap(self.parent.play)
+        self.timeshift.setText(ln.langs.get(self.parent.lang, ln.eng).get('timeshift', '***'))
+        self.savetime.setText(ln.langs.get(self.parent.lang, ln.eng).get('save', '***'))
         
     def changeState(self):
         self.parent.point = not self.parent.point
@@ -249,6 +307,11 @@ class Main_window(QMainWindow):
         if self.creator is None:
             self.creator = 'Советские военные карты'
             add_cfg('creator', self.creator)
+            
+        self.timeshift = read_cfg('timeshift')
+        if self.timeshift is None:
+            self.timeshift = '+0'
+            add_cfg('timeshift', self.timeshift)
             
         self.do_points = read_cfg('points')
         if self.do_points == 'true':

@@ -3,24 +3,24 @@ import gpxpy
 import gpxpy.gpx
 import os
 import langs as ln
-import platform
-if platform.system() == 'Windows':
-    import pywintypes, win32file, win32con
-
-def changeFileCreationTime(fname, newtime):
-    wintime = pywintypes.Time(newtime)
-    winfile = win32file.CreateFile(
-        fname, win32con.GENERIC_WRITE,
-        win32con.FILE_SHARE_READ | win32con.FILE_SHARE_WRITE | win32con.FILE_SHARE_DELETE,
-        None, win32con.OPEN_EXISTING,
-        win32con.FILE_ATTRIBUTE_NORMAL, None)
-
-    win32file.SetFileTime(winfile, wintime, None, None)
-
-    winfile.close()
+import datetime as dt
 
 def generate(main_path, window):#main function
     
+    shift_temp = window.timeshift.split(':')
+    if len(shift_temp)==2:
+        hour_delta = shift_temp[0][1:]
+        minute_delta = shift_temp[1]
+        sign = shift_temp[0][0]
+    else:
+        hour_delta = shift_temp[0][1:]
+        minute_delta = str(0)
+        sign = shift_temp[0][0]
+    if sign == '-':
+        offset = dt.timedelta(minutes=int(minute_delta), hours=int(hour_delta))
+    else:
+        offset = dt.timedelta(minutes=-int(minute_delta), hours=-int(hour_delta))
+
     main = open(main_path, encoding='utf-8', mode='r')
     
     #generating path and folder for output GPX file
@@ -104,7 +104,7 @@ def generate(main_path, window):#main function
         output_track_path = output_path + "/" + trk_name + ".gpx"
         output_track_points_path = output_track_path[:len(output_track_path)-4] + ' + p.gpx'
         #print('comment is ', trk_cmt)
-        comment = mt.do_comment(trk_cmt)
+        comment = mt.do_comment(trk_cmt, offset)
         #print('comment read as ', comment)
         start = comment[0]
         speed = 30

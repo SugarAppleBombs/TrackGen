@@ -12,7 +12,7 @@ gdal.UseExceptions()
 SAMPLES = 3600  #number of longitudinal samples in AW3D30 DSM files
 DATA = 'data'   #name of the folder containing misc files
 
-def do_comment(trk_cmt):
+def do_comment(trk_cmt, offset):
     #print(trk_cmt)
     if isinstance(trk_cmt, str):
         trk_cmt = trk_cmt.split(' ')
@@ -98,7 +98,7 @@ def do_comment(trk_cmt):
         if trk_cmt[2].isdecimal():
             speed = int(trk_cmt[2])
     
-    return [dt.datetime(year, month, day, hour, minute, second), speed]
+    return [dt.datetime(year, month, day, hour, minute, second) + offset, speed]
 
 def core(creator, q, name, path):#creating an empty GPX track file using a template
     #print(path)
@@ -350,15 +350,15 @@ def timein(array, path):#filling in the date/time values into an resulting GPX t
     temp.write(output.read())
     output.seek(0)
     temp.seek(0)
-    t = "T"
     for i in range(8):
         output.readline()
         temp.readline()
     for i in range(array[0]):
         output.write(temp.read(6))
         output.write(str(array[i+1].date()).encode(encoding='utf-8', errors='strict'))
-        output.write(t.encode(encoding='utf-8', errors='strict'))
+        output.write("T".encode(encoding='utf-8', errors='strict'))
         output.write(str(array[i+1].time())[:8].encode(encoding='utf-8', errors='strict'))
+        output.write("Z".encode(encoding='utf-8', errors='strict'))
         output.write(temp.read(8))
         for j in range(4):
             output.write(temp.readline())
@@ -475,6 +475,7 @@ def pointin(creator, name, cm, lat, lon, output_path, timestamp, ele):
     file.write(str(timestamp.date()).encode(encoding='utf-8', errors='strict'))
     file.write("T".encode(encoding='utf-8', errors='strict'))
     file.write(str(timestamp.time())[:8].encode(encoding='utf-8', errors='strict'))
+    file.write("Z".encode(encoding='utf-8', errors='strict'))
     file.write('</time>\n</wpt>\n</gpx>\n'.encode(encoding='utf-8', errors='strict'))
     
     file.close()

@@ -34,7 +34,8 @@ eng = {
 'save': 'Save',
 'wait': 'Please, Wait',
 'reading': 'Reading the GPX File',
-'creator': 'Creator Name'
+'creator': 'Creator Name',
+'timeshift': 'Timezone(relative to UTC)'
 }
 
 rus = {
@@ -72,7 +73,8 @@ rus = {
 'wrong': 'Что-то пошло не так при обработке, рекомендуется закрыть программу',
 'wait': 'Пожалуйста, Подождите',
 'reading': 'Считывается GPX Файл',
-'creator': 'Имя Создателя'
+'creator': 'Имя Создателя',
+'timeshift': 'Часовой пояс(относительно UTC)'
 }
 
 langs = {
