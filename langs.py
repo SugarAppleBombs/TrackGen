@@ -35,6 +35,7 @@ eng = {
 'wait': 'Please, Wait',
 'reading': 'Reading the GPX File',
 'creator': 'Creator Name',
+'inter': 'Interpolate',
 'timeshift': 'Timezone(relative to UTC)'
 }
 
@@ -74,6 +75,7 @@ rus = {
 'wait': 'Пожалуйста, Подождите',
 'reading': 'Считывается GPX Файл',
 'creator': 'Имя Создателя',
+'inter': 'Интреполировать',
 'timeshift': 'Часовой пояс(относительно UTC)'
 }
 

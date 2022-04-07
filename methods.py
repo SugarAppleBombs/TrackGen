@@ -182,7 +182,7 @@ def frommerc(input):#Mercator projection to lat/lon coordinates conversion
         output.append(lon)
     return output
 
-def spline(length, array):#cubic spline for a track(should convert track to Mercator first)
+def spline(length, array, inter):#cubic spline for a track(should convert track to Mercator first)
     #print('making a spline')
     x_points = []
     y_points = []
@@ -194,6 +194,9 @@ def spline(length, array):#cubic spline for a track(should convert track to Merc
         deg = 2
     if array[0]>3:
         deg = 3
+    if not inter:
+        deg = 1
+        
     x_points.append(array[1])
     y_points.append(array[2])
     d = 0
@@ -206,6 +209,7 @@ def spline(length, array):#cubic spline for a track(should convert track to Merc
             #print(array[2*i+1],'=', x_points[i-1-d])
             #print(array[2*(i+1)], '=', y_points[i-1-d])
             d += 1
+    
     mytck,myu=interpolate.splprep([x_points,y_points], s = 0.0, k = deg)
     xnew,ynew= interpolate.splev(np.linspace(0,1,length),mytck)
     out[0] = len(xnew)

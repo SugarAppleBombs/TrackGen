@@ -9,7 +9,7 @@ import webbrowser
 import langs as ln
 import gen
 DATA = 'data'   #name of the folder containing misc files
-CONFIG = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\ntimeshift = +0\n'
+CONFIG = 'lan = eng\nhgtdir = data\ncreator = Советские военные карты\npoints = false\ntimeshift = +0\ninterpolate = true\n'
 def change_cfg(param, value):
     if not os.path.isfile(DATA + "/config.cfg"): 
         cfg_file = open(DATA + '/config.cfg', encoding = 'utf-8', mode = 'w')
@@ -160,6 +160,12 @@ class Settings(QDialog):
         self.cb.setChecked(self.parent.point)
         self.cb.stateChanged.connect(self.changeState)
         
+        self.cb1 = QCheckBox(ln.langs.get(self.parent.lang, ln.eng).get('inter', '***'), self)
+        self.cb1.move(240, 160)
+        self.cb1.resize(155, 20)
+        self.cb1.setChecked(self.parent.inter)
+        self.cb1.stateChanged.connect(self.changeState1)
+        
         self.timeshift = QLabel(self)
         self.timeshift.resize(200, 30)
         self.timeshift.setText(ln.langs.get(self.parent.lang, ln.eng).get('timeshift', '***'))
@@ -245,6 +251,7 @@ class Settings(QDialog):
         self.parent.b1.setText(ln.langs.get(self.parent.lang, ln.eng).get('choose_file_btn', '***'))
         self.parent.b2.setText(ln.langs.get(self.parent.lang, ln.eng).get('gen_btn', '***'))
         self.cb.setText(ln.langs.get(self.parent.lang, ln.eng).get('snap_chk', '***'))
+        self.cb1.setText(ln.langs.get(self.parent.lang, ln.eng).get('inter', '***'))
         self.parent.label3.setText(" ")
         self.parent.label4.setText(" ")
         self.lan_txt.setText(ln.langs.get(self.parent.lang, ln.eng).get('lang', '***'))
@@ -270,7 +277,15 @@ class Settings(QDialog):
                 else:
                     self.parent.gif.setText("There should\nhave been\na kitten\nbut someone\nstole it")
                 self.parent.easter_flag = True
-     
+                
+    def changeState1(self):
+        self.parent.inter = not self.parent.inter
+        if self.parent.inter:
+            self.tmp = 'true'
+        else:
+            self.tmp = 'false'
+        change_cfg('interpolate', self.tmp)
+        
 class Main_window(QMainWindow):
 
     def __init__(self):
@@ -318,7 +333,19 @@ class Main_window(QMainWindow):
             self.point = True
         else:
             self.point = False
-        
+        if self.do_points == None:
+            self.point = False
+            add_cfg('points', 'false')
+            
+        self.do_inter = read_cfg('interpolate')
+        if self.do_inter == 'true':
+            self.inter = True
+        else:
+            self.inter = False
+        if self.do_inter == None:
+            self.inter = True
+            add_cfg('interpolate', 'true')
+            
         self.b1 = QtWidgets.QPushButton(self)   #file dialog button
         #self.b1.setStyleSheet("border: 1px solid grey")
         self.b1.resize(100, 30)

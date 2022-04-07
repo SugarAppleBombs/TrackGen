@@ -125,7 +125,7 @@ def generate(main_path, window):#main function
             
             n = int(1800*sum(dst[1:])/speed)
             
-            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords), window.inter))
             
             dst = mt.dist(result_coords)
             
@@ -259,7 +259,7 @@ def generate(main_path, window):#main function
             
             n = int(1800*sum(dst[1:])/speed)
             
-            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords)))
+            result_coords = mt.frommerc(mt.spline(n, mt.merc(coords), window.inter))
             
             dst = mt.dist(result_coords)
             
